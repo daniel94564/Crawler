@@ -8,7 +8,7 @@ Created on Thu Aug 20 11:26:52 2020
 
 location_list=['乖寶','科技園區','總部','陽光','品皇','瘋拍','珍Q','阿默','慈德','延平','大福']
 
-def location(comment):
+def get_location(comment):
     flag=[]
     counter=0
     tmp=[]

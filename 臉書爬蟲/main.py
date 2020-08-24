@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -13,9 +16,11 @@ from pathlib import Path
 import pyautogui
 
 import configparser
-from text_modules.get_location import location
-from text_modules.get_comment_content import comment_content
+from text_modules.get_location import get_location
+from text_modules.get_comment_content import get_comment_content
 from text_modules.get_post import get_post_content
+from text_modules.get_comment_name import get_comment_name
+from text_modules.get_product_info import get_product_info
 
 
 
@@ -48,6 +53,7 @@ def get_htmltext(username, password):
     comment_people_lst = []
     comment_lst = []
     product_lst = []
+    quantity_lst=[]
     locat_lst = []
 
     chrome_options = Options()
@@ -56,7 +62,7 @@ def get_htmltext(username, password):
             {
             'notifications' : 1
             }
-    }
+    } 
 
     chrome_options.add_experimental_option('prefs', prefs)
     chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']);
@@ -97,59 +103,51 @@ def get_htmltext(username, password):
 #            clickN[i].click()
 
     # 點開所有留言
-    t.sleep(5)
+
     print("點擊")
     try:
         driver.find_element_by_xpath(more_messages_xpath.click())
     except:
-        print('Error occurred')
-    t.sleep(10)
+        print('No click')
+    t.sleep(5)
         
 
 
     print("開始爬文")
     htmltext = driver.page_source
     soup = BeautifulSoup(htmltext,"lxml")
-    print(soup.prettify())
+    
 
 #    爬貼文
     post_content = soup.find(class_ = post_content_class).text
-#    debug用
-    print("!!!")
-    print(post_content)    
+    
+    post_type=get_post_content(post_content)[1]
+
+   
 
 
 
 #    找留言者
     comment_people = soup.find_all(class_ = comment_people_class) # 留言人
     for comment_person in comment_people:
-        comment_people_lst.append(comment_person.text)
+        comment_people_lst.append(get_comment_name(comment_person.text,post_type))
 
 
     comments = soup.find_all('div',class_ = comment_class) # 留言
 
-    for comment in comments:
-        comment_lst.append(comment.text)
 
-        i = 0
-        flag = 0
-        for ch in comment.text:            
-            if u'\u4e00' <= ch <= u'\u9fff':
-                product_lst.append(comment.text[:i])
-                locat_lst.append(comment.text[i:])
-                flag = 1
-                break
-            else:    
-                i += 1
-        
-        if flag == 0:        
-            product_lst.append(comment.text)
-            locat_lst.append('')
+    for comment in comments:
+        comment_lst.append(get_comment_content(comment.text,post_type))
+        product_lst.append(get_product_info(comment.text,post_type))
+        print(get_product_info(comment.text,post_type))
+        quantity_lst.append(get_product_info(comment.text,post_type))
+        locat_lst.append(get_location(comment.text))
+
 
     csv_lst.append(['文章連結', '文章內容', '留言人', '留言', '商品', '取貨地點','價錢'])
     csv_lst.append([url, get_post_content(post_content)[0], comment_people_lst[0], comment_lst[0], product_lst[0], locat_lst[0]])
     for i in range(1, len(comment_people_lst)):
-        csv_lst.append(['', '', comment_people_lst[i], comment_content(comment_lst[i]), product_lst[i], location(locat_lst[i])])
+        csv_lst.append(['', '', comment_people_lst[i], comment_lst[i], product_lst[i],locat_lst[i]])
 
     driver.close()
     To_csv(len(comment_people_lst))

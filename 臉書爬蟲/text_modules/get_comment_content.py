@@ -8,7 +8,7 @@ Created on Wed Aug 19 17:43:40 2020
 
 comment='某某某A+1,B2,C3,取貨'
 
-def comment_content(comment):
+def get_comment_content(comment,post_type):
     plus_token=[]
     for i in range(len(comment)):
         if comment[i]=='+':
@@ -16,10 +16,14 @@ def comment_content(comment):
             
     if len(plus_token)==0:
         return(comment)
-    else :
+        
+    elif post_type==0:
+        return(comment)
+    elif post_type==1 :
+        return comment[plus_token[0]:]
+    elif post_type==2:
         return comment[plus_token[0]-1:]
             
     
 
-print(comment_content(comment))
 
