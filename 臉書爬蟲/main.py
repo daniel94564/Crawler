@@ -7,14 +7,11 @@ import pandas as pd
 import re
 import time as t
 import datetime
-import tkinter as tk
 from selenium.webdriver.chrome.options import Options
 from openpyxl import Workbook
 import logging
 import os
 from pathlib import Path
-import pyautogui
-
 import configparser
 from text_modules.get_location import get_location
 from text_modules.get_comment_content import get_comment_content
@@ -23,10 +20,11 @@ from text_modules.get_comment_name import get_comment_name
 from text_modules.get_product_info import get_product_info
 
 
-
+csv_lst = []
+output_path  = ''
 
 config = configparser.ConfigParser()    # 注意大小寫
-config.read("config.ini")   # 配置檔案的路徑
+config.read("config.ini", encoding="utf-8")   # 配置檔案的路徑
 
 post_url=config['configs']['url']
 comment_people_class=config['configs']['comment_people_class']
@@ -48,13 +46,20 @@ logging.basicConfig(level=logging.INFO,
 					handlers = [logging.FileHandler(log_path, 'w+', 'utf-8'),])
 
 
-def get_htmltext(username, password):
+def get_htmltext(url, folderPath):
     global csv_lst
+    global output_path
+
+    output_path = folderPath
+
     comment_people_lst = []
     comment_lst = []
     product_lst = []
     quantity_lst=[]
     locat_lst = []
+
+    username = config['configs']['acc']
+    password = config['configs']['pwd']
 
     chrome_options = Options()
     prefs = {
@@ -64,8 +69,11 @@ def get_htmltext(username, password):
             }
     } 
 
+    chrome_options.add_argument('--headless')  #規避google bug
+    # chrome_options.add_argument('--disable-gpu')
+
     chrome_options.add_experimental_option('prefs', prefs)
-    chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']);
+    chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
     chrome_options.add_argument("start-maximized")
     chrome_options.add_argument("--disable-extensions")
 #    driver位置,改路徑
@@ -104,7 +112,7 @@ def get_htmltext(username, password):
 
     # 點開所有留言
 
-    print("點擊")
+    # print("點擊")
     try:
         driver.find_element_by_xpath(more_messages_xpath.click())
     except:
@@ -113,7 +121,7 @@ def get_htmltext(username, password):
         
 
 
-    print("開始爬文")
+    # print("開始爬文")
     htmltext = driver.page_source
     soup = BeautifulSoup(htmltext,"lxml")
     
@@ -138,9 +146,10 @@ def get_htmltext(username, password):
 
     for comment in comments:
         comment_lst.append(get_comment_content(comment.text,post_type))
-        product_lst.append(get_product_info(comment.text,post_type))
-        print(get_product_info(comment.text,post_type))
-        quantity_lst.append(get_product_info(comment.text,post_type))
+        print(post_content)
+        print(get_product_info(comment.text,post_type,post_content))
+        product_lst.append(get_product_info(comment.text,post_type,post_content))
+
         locat_lst.append(get_location(comment.text))
 
 
@@ -159,10 +168,11 @@ def writePandas(data_lst):
 
 """將存取的資料轉成CSV格式輸出"""
 def To_csv(column_length):
+    global output_path
     global csv_lst
     fileName = '乖寶嚴選_' + t.strftime('%Y%m%d%H%M%S', t.localtime())
     try:
-        with open('data/xls/'+fileName+'.xlsx', 'w') as new_csv:
+        with open(output_path + '\\' + fileName + '.xlsx', 'w') as new_csv:
             pass
         df = writePandas(csv_lst)
         df.sort_values(by='取貨地點')
@@ -173,7 +183,7 @@ def To_csv(column_length):
             
         ws.auto_filter.ref = "C1:F" + str(column_length)
         ws.auto_filter.add_filter_column(0, [''])
-        wb.save('data/xls/'+fileName+'.xlsx')
+        wb.save(output_path + '\\' + fileName + '.xlsx')
 
     except Exception as e:
         logging.info('程式異常 : ' + str(e))
@@ -182,9 +192,8 @@ def To_csv(column_length):
     csv_lst = []
 
 
-if __name__ == '__main__':
-    username = config['configs']['acc']
-    password = config['configs']['pwd']
-
-    csv_lst = []
-    htmltext = get_htmltext(username, password)
+#if __name__ == '__main__':
+#    username = config['configs']['acc']
+#    password = config['configs']['pwd']
+#    csv_lst = []
+#    htmltext = get_htmltext(username, password)
