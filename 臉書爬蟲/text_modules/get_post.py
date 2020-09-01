@@ -19,6 +19,7 @@ def get_post_content(post):
             start_end_token.append(i)
             post_type=2
     
+
     return(post[start_end_token[0]+1:start_end_token[1]],post_type)
     
 

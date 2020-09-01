@@ -33,6 +33,7 @@ more_messages_xpath=config['configs']['more_messages_xpath']
 post_content_class=config['configs']['post_content_class']
 comment_class=config['configs']['comment_class']
 more_messages=config['configs']['more_messages']
+more_posts=config['configs']['more_posts']
 
 
 wb = Workbook()
@@ -71,7 +72,7 @@ def get_htmltext(url, folderPath):
             }
     } 
 
-    chrome_options.add_argument('--headless')  #規避google bug
+    # chrome_options.add_argument('--headless')  #規避google bug
     # chrome_options.add_argument('--disable-gpu')
 
     chrome_options.add_experimental_option('prefs', prefs)
@@ -117,13 +118,18 @@ def get_htmltext(url, folderPath):
     try:
         t.sleep(10)
         
-        
+        driver.find_element_by_xpath(more_messages_xpath).click()
         driver.find_element_by_xpath(more_messages_xpath).click()
         t.sleep(10)
 
     except:
         print(more_messages_xpath)
         print('No click')
+        
+    try:
+        driver.find_element_by_xpath(more_posts).click()
+    except:
+        print('no more post clicked')
    
         
 
@@ -139,12 +145,13 @@ def get_htmltext(url, folderPath):
 
     
     t.sleep(10)
-    post_content = soup.find_all(class_ = post_content_class)[1].text
+    post_content = soup.find_all(class_ = post_content_class)[0].text
     
     print(post_content)
-    post_area = soup.find_all(class_ = post_content_class)[1]
+    post_area = soup.find_all(class_ = post_content_class)[0]
     
     post_type=get_post_content(post_content)[1]
+    print('the type of this post is: '+str(post_type))
 
    
 
