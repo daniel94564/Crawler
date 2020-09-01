@@ -8,6 +8,7 @@ import re
 import time as t
 import datetime
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
 from openpyxl import Workbook
 import logging
 import os
@@ -31,6 +32,7 @@ comment_people_class=config['configs']['comment_people_class']
 more_messages_xpath=config['configs']['more_messages_xpath']
 post_content_class=config['configs']['post_content_class']
 comment_class=config['configs']['comment_class']
+more_messages=config['configs']['more_messages']
 
 
 wb = Workbook()
@@ -89,7 +91,6 @@ def get_htmltext(url, folderPath):
     t.sleep(3)
     url =post_url
     driver.get(url)
-    t.sleep(5)
     
 
 
@@ -114,10 +115,16 @@ def get_htmltext(url, folderPath):
 
     # print("點擊")
     try:
-        driver.find_element_by_xpath(more_messages_xpath.click())
+        t.sleep(10)
+        
+        
+        driver.find_element_by_xpath(more_messages_xpath).click()
+        t.sleep(10)
+
     except:
+        print(more_messages_xpath)
         print('No click')
-    t.sleep(5)
+   
         
 
 
@@ -126,8 +133,16 @@ def get_htmltext(url, folderPath):
     soup = BeautifulSoup(htmltext,"lxml")
     
 
+
 #    爬貼文
-    post_content = soup.find(class_ = post_content_class).text
+
+
+    
+    t.sleep(10)
+    post_content = soup.find_all(class_ = post_content_class)[1].text
+    
+    print(post_content)
+    post_area = soup.find_all(class_ = post_content_class)[1]
     
     post_type=get_post_content(post_content)[1]
 
@@ -136,17 +151,17 @@ def get_htmltext(url, folderPath):
 
 
 #    找留言者
-    comment_people = soup.find_all(class_ = comment_people_class) # 留言人
+    comment_people = post_area.find_all(class_ = comment_people_class) # 留言人
     for comment_person in comment_people:
         comment_people_lst.append(get_comment_name(comment_person.text,post_type))
 
 
-    comments = soup.find_all('div',class_ = comment_class) # 留言
+    comments = post_area.find_all('div',class_ = comment_class) # 留言
 
 
     for comment in comments:
         comment_lst.append(get_comment_content(comment.text,post_type))
-        print(post_content)
+        
         print(get_product_info(comment.text,post_type,post_content))
         product_lst.append(get_product_info(comment.text,post_type,post_content))
 
@@ -192,8 +207,11 @@ def To_csv(column_length):
     csv_lst = []
 
 
-#if __name__ == '__main__':
-#    username = config['configs']['acc']
-#    password = config['configs']['pwd']
-#    csv_lst = []
-#    htmltext = get_htmltext(username, password)
+if __name__ == '__main__':
+    username = config['configs']['acc']
+    password = config['configs']['pwd']
+    csv_lst = []
+    htmltext = get_htmltext(username, password)
+    
+    
+    

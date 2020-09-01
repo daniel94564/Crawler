@@ -10,6 +10,37 @@ post='^韓風正式吹來啦!!! 韓國知名大廠SAMJIN AMOOK助陣^ 品名: A.
 sample='A+2 C+3'
 
 
+def get_price(post):
+    pos=post.find('團購價')
+    
+    price_text=''
+    token=[]
+    end_token=[]
+    mid_token=[]
+    price_dict={}
+    for i in post[pos+3:]:
+        if i!='!':
+            price_text+=i
+        if i=='!':
+            break
+    
+    for i in range(len(price_text)):
+        if price_text[i]=='+' or price_text[i]=='＋':
+            token.append(i)
+        if price_text[i]=='元':
+            end_token.append(i)
+        if price_text[i]=='＝' or price_text[i]=='=':
+            mid_token.append(i)
+            
+    for i in range(len(token)):
+        price_dict[price_text[token[i]+1]]=price_text[mid_token[i]+1:end_token[i]]
+        
+    return(price_dict)
+        
+
+
+
+
 def get_product_dict(post):
     start_token=[]
     end_token=[]
@@ -29,6 +60,7 @@ def get_product_dict(post):
             tmp+=post[start_token[j]+k+1]
         p_dict[post[start_token[j]-1]]=tmp
     
+
     return(p_dict)
 
     
@@ -74,6 +106,7 @@ def get_product_info(comment,post_type,post):
             
     q_lst=get_quantity(comment,token)
     
+    
     for index in range(len(product_lst)):
         if product_lst[index]==0:
             product_lst[index]='A'
@@ -105,4 +138,4 @@ def get_product_info(comment,post_type,post):
     return(product_output)
     
  
-print(get_product_info(sample,2,post))
+# print(get_product_info(sample,2,post))
