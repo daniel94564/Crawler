@@ -9,6 +9,7 @@ import time as t
 import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from openpyxl import Workbook
 import logging
 import os
@@ -116,18 +117,17 @@ def get_htmltext(url, folderPath):
 
     # print("點擊")
     try:
-        t.sleep(10)
+        t.sleep(15)
         
         driver.find_element_by_xpath(more_messages_xpath).click()
-        driver.find_element_by_xpath(more_messages_xpath).click()
-        t.sleep(10)
+        t.sleep(5)
 
     except:
         print(more_messages_xpath)
         print('No click')
         
     try:
-        driver.find_element_by_xpath(more_posts).click()
+        driver.find_element_by_xpath(more_posts).send_keys(Keys.ENTER)
     except:
         print('no more post clicked')
    

@@ -55,7 +55,7 @@ def get_product_dict(post):
             
     
             
-    for j in range(len(start_token)):
+    for j in range(len(end_token)):
         tmp=''
         for k in range(len(post[start_token[j]+1:end_token[j]])):
             tmp+=post[start_token[j]+k+1]
