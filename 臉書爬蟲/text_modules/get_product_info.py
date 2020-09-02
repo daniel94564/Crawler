@@ -50,7 +50,7 @@ def get_product_dict(post):
     for i in range(len(post)):
         if post[i]=='.':
             start_token.append(i)
-        elif post[i]=='~':
+        elif post[i]=='>':
             end_token.append(i)
             
     
