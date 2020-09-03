@@ -12,7 +12,7 @@ def get_post_content(post):
     start_end_token=[]
     post_type=0
     for i in range(len(post)):
-        if post[i]=='％':
+        if post[i]=='*':
             start_end_token.append(i)
             post_type=1
         if post[i]=='^':

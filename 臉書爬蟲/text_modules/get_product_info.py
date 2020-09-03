@@ -46,14 +46,17 @@ def get_product_dict(post):
     start_token=[]
     end_token=[]
     p_dict={}
+    post_end_point=10
+    post_end_point=post.find('則留言')
 
     for i in range(len(post)):
-        if post[i]=='.':
+        if post[i]==':' and post[i-1].isnumeric()==False:
             start_token.append(i)
-        elif post[i]=='>':
+        elif post[i]=='~' and i<post_end_point:
             end_token.append(i)
             
-    
+    print('start token are:')
+    print(start_token)
             
     for j in range(len(end_token)):
         tmp=''
@@ -128,11 +131,12 @@ def get_product_info(comment,post_type,post):
             return comment
         
         for n in range(len(product_lst)):
+            try:
+                product_output+=product_dict[product_lst[n]]+':'+q_lst[n]+','
+            except:
+                return comment
 
-            product_output+=product_dict[product_lst[n]]+':'+q_lst[n]+','
-
-
-    
+            
     return(product_output)
     
  

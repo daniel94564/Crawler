@@ -32,6 +32,7 @@ post_url=config['configs']['url']
 comment_people_class=config['configs']['comment_people_class']
 more_messages_xpath=config['configs']['more_messages_xpath']
 post_content_class=config['configs']['post_content_class']
+post_type_class=config['configs']['post_type_class']
 comment_class=config['configs']['comment_class']
 more_messages=config['configs']['more_messages']
 more_posts=config['configs']['more_posts']
@@ -91,8 +92,7 @@ def get_htmltext(url, folderPath):
         
    
     t.sleep(3)
-    url =post_url
-    driver.get(url)
+    driver.get(post_url)
     
 
 
@@ -146,12 +146,14 @@ def get_htmltext(url, folderPath):
     
     t.sleep(10)
     post_content = soup.find_all(class_ = post_content_class)[0].text
+
+    post_type = soup.find_all(class_ = post_type_class)[0].text
     
     print(post_content)
     post_area = soup.find_all(class_ = post_content_class)[0]
     
-    post_type=get_post_content(post_content)[1]
-    print('the type of this post is: '+str(post_type))
+    post_type=get_post_content(post_type)[1]
+    # print('the type of this post is: '+str(post_type))
 
    
 
